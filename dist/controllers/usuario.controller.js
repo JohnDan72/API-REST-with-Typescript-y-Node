@@ -1,0 +1,117 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteUsuario = exports.putUsuario = exports.postUsuario = exports.getUsuario = exports.getUsuarios = void 0;
+const usuario_1 = __importDefault(require("../models/usuario"));
+const getUsuarios = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const usuarios = yield usuario_1.default.findAll();
+    res.status(200).json({
+        'msg': 'Get | usuarios',
+        usuarios
+    });
+});
+exports.getUsuarios = getUsuarios;
+const getUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const usuario = yield usuario_1.default.findByPk(id);
+    if (!usuario) {
+        res.status(404).json({
+            error_msg: 'El usuario no existe con ese id'
+        });
+    }
+    else {
+        res.status(200).json({
+            'msg': 'Get | usuario by id',
+            id,
+            usuario
+        });
+    }
+});
+exports.getUsuario = getUsuario;
+const postUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { body } = req;
+    try {
+        const existeEmail = yield usuario_1.default.findOne({
+            where: {
+                email: body.email
+            }
+        });
+        if (existeEmail) {
+            return res.status(400).json({
+                'error_msg': 'Error, este correo ya ha sido registrado'
+            });
+        }
+        const nuevo = new usuario_1.default(body);
+        yield nuevo.save();
+        res.status(200).json({
+            'msg': 'POST | usuario',
+            body,
+            nuevo,
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            'error_msg': 'Ocurrió un error inesperado: ' + error
+        });
+    }
+});
+exports.postUsuario = postUsuario;
+const putUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { body } = req;
+    try {
+        const usuario = yield usuario_1.default.findByPk(id);
+        if (!usuario) {
+            return res.status(400).json({
+                'error_msg': 'Error, el usuario no existe'
+            });
+        }
+        yield usuario.update(body);
+        res.status(200).json({
+            'msg': 'PUT | usuario actualizado',
+            usuario
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            'error_msg': 'Ocurrió un error inesperado: ' + error
+        });
+    }
+});
+exports.putUsuario = putUsuario;
+const deleteUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const usuario = yield usuario_1.default.findByPk(id);
+        if (!usuario) {
+            return res.status(400).json({
+                'error_msg': 'Error, el usuario no existe'
+            });
+        }
+        yield usuario.update({
+            status: false
+        });
+        res.status(200).json({
+            'msg': 'DELETE | usuario eliminado',
+            usuario
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            'error_msg': 'Ocurrió un error inesperado: ' + error
+        });
+    }
+});
+exports.deleteUsuario = deleteUsuario;
+//# sourceMappingURL=usuario.controller.js.map
